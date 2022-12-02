@@ -2,10 +2,10 @@ import ccxt from "ccxt";
 import chalk from "chalk";
 import inquirer from "inquirer";
 
-const TICKER = "ETH/USD:USD";
+const TICKER = "ETH/USDT";
 
-//FTX related;
-let ftx;
+//binance related;
+let binance;
 let apiKey = "";
 let lastTickerPrice = 0;
 
@@ -21,7 +21,7 @@ inquirer
 		{
 			type: "input",
 			name: "apiKey",
-			message: "Enter you FTX api key (note: this key is only stored in the current process and will get deleted once you end it”)",
+			message: "Enter you binance api key (note: this key is only stored in the current process and will get deleted once you end it”)",
 			default: "",
 			filter(value) {
 				apiKey = value;
@@ -31,17 +31,18 @@ inquirer
 		{
 			type: "input",
 			name: "secretKey",
-			message: "Enter you FTX secret key (note: this secret is only stored in the current process and will get deleted once you end it”)",
+			message: "Enter you binance secret key (note: this secret is only stored in the current process and will get deleted once you end it”)",
 			default: "",
 			filter: async (value) => {
-				//initiate ftx class
-				ftx = new ccxt.ftx({
+				//initiate binance class
+				binance = new ccxt.binanceusdm({
 					apiKey,
 					secret: value,
 				});
 
 				//fetch the lastest market price & set it
-				const market = await ftx.fetchTicker(TICKER);
+				const market = await binance.fetchTicker(TICKER);
+				console.log("last price:", market.last)
 				lastTickerPrice = market.last;
 
 				return value;
@@ -113,8 +114,8 @@ inquirer
     }
 
 		if (positionSide === "LONG") {
-			ftx
-				.createMarketBuyOrder("ETH/USD:USD", positionSizeInTicker, {})
+			binance
+				.createMarketBuyOrder(TICKER, positionSizeInTicker, {})
 				.then((res) => {
 					console.log(`✅ Successfully posted ${chalk.green(positionSide)}!.Total notional:${chalk.blueBright("$" + notionalUSDvalue)}`);
 				})
@@ -124,8 +125,8 @@ inquirer
 			return;
 		}
 		if (positionSide === "SHORT") {
-			ftx
-				.createMarketSellOrder("ETH/USD:USD", positionSizeInTicker, {})
+			binance
+				.createMarketSellOrder(TICKER, positionSizeInTicker, {})
 				.then((res) => {
 					console.log(`✅ Successfully posted ${chalk.red(positionSide)}!.Total notional:${chalk.blueBright("$" + notionalUSDvalue)}`);
 				})
